@@ -14,18 +14,18 @@ public class PlayerBehaviour : MonoBehaviour
     public int yVelocity = 8;
     [SerializeField] private LayerMask ground;
 
-    // Физическое поведение (тело) объекта
     private Rigidbody2D rigidBody;
-
-    // Коллайдер, проверка на столкновения
     private Collider2D coll;
+    private SpriteRenderer spriteRenderer;
+    private Animator animatorComponent;
 
-    // Start (https://docs.unity3d.com/ScriptReference/MonoBehaviour.Start.html)
     private void Start()
     {
-        // Получаем доступ к Rigidbody2D объекта Player
         rigidBody = gameObject.GetComponent<Rigidbody2D>();
         coll = gameObject.GetComponent<Collider2D>();
+        spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
+        animatorComponent = gameObject.GetComponent<Animator>();
+
     }
 
     private void Update()
@@ -36,28 +36,29 @@ public class PlayerBehaviour : MonoBehaviour
     // Обновляем местоположение игрока
     private void updatePlayerPosition()
     {
-        // Получаем значение ввода горизонтального перемещение
         float moveInput = Input.GetAxis("Horizontal");
-        // Получаем значение ввода прыжка
         float jumpInput = Input.GetAxis("Jump");
 
-        // Значения xVelocity, yVelocity можно задать через инспектор
-
         if (moveInput < 0)
-        { // Движ влево
+        { // Влево
             rigidBody.velocity = new Vector2(-xVelocity, rigidBody.velocity.y);
+            animatorComponent.SetInteger("state", 1); // Бег
+            spriteRenderer.flipX = true;
         }
         else if (moveInput > 0)
-        { // Движ вправо
+        { // Вправо
             rigidBody.velocity = new Vector2(xVelocity, rigidBody.velocity.y);
+            animatorComponent.SetInteger("state", 1); // Бег
+            spriteRenderer.flipX = false;
         }
         else if (coll.IsTouchingLayers(ground))
         {
-            rigidBody.velocity = Vector2.zero; // Лично меня дико бесит инерция вбок при приземлении персонажа, отключаем
+            rigidBody.velocity = Vector2.zero; // Отключение инерции в стороны
+            animatorComponent.SetInteger("state", 0); // Стоим
         }
 
         if (jumpInput > 0 && coll.IsTouchingLayers(ground))
-        { //Тип прыгает, если стоит на земле
+        {
             rigidBody.velocity = new Vector2(rigidBody.velocity.x, yVelocity);
         }
     }
