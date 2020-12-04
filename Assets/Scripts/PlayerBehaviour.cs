@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerBehaviour : MonoBehaviour
-{
+public class PlayerBehaviour : MonoBehaviour {
     /**
-   ** Ускорение игрока
-   **/
-    [Header("Player velocity")]
+    ** Ускорение игрока
+    **/
+  [Header("Player velocity")]
     // Ось Ox
     public int xVelocity = 5;
     // Ось Oy
     public int yVelocity = 8;
-    [SerializeField] private LayerMask ground;
+
+  [SerializeField] private LayerMask ground;
 
     private Rigidbody2D rigidBody;
     private Collider2D coll;
@@ -25,15 +25,11 @@ public class PlayerBehaviour : MonoBehaviour
         coll = gameObject.GetComponent<Collider2D>();
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         animatorComponent = gameObject.GetComponent<Animator>();
-
     }
-
-    private void Update()
+    private void Update() 
     {
-        updatePlayerPosition();
+      updatePlayerPosition();
     }
-
-    // Обновляем местоположение игрока
     private void updatePlayerPosition()
     {
         float moveInput = Input.GetAxis("Horizontal");
@@ -42,19 +38,19 @@ public class PlayerBehaviour : MonoBehaviour
         if (moveInput < 0)
         { // Влево
             rigidBody.velocity = new Vector2(-xVelocity, rigidBody.velocity.y);
-            animatorComponent.SetInteger("state", 1); // Бег
-            spriteRenderer.flipX = true;
+            animatorComponent.SetInteger("State", 1); // Бег
+            spriteRenderer.flipX =false;
         }
         else if (moveInput > 0)
         { // Вправо
             rigidBody.velocity = new Vector2(xVelocity, rigidBody.velocity.y);
-            animatorComponent.SetInteger("state", 1); // Бег
-            spriteRenderer.flipX = false;
+            animatorComponent.SetInteger("State", 1); // Бег
+            spriteRenderer.flipX = true;
         }
         else if (coll.IsTouchingLayers(ground))
         {
             rigidBody.velocity = Vector2.zero; // Отключение инерции в стороны
-            animatorComponent.SetInteger("state", 0); // Стоим
+            animatorComponent.SetInteger("State", 0); // Стоим
         }
 
         if (jumpInput > 0 && coll.IsTouchingLayers(ground))
