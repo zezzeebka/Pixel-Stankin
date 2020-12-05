@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerBehaviour : MonoBehaviour {
-    /**
-    ** Ускорение игрока
-    **/
+  
   [Header("Player velocity")]
     // Ось Ox
     public int xVelocity = 5;
