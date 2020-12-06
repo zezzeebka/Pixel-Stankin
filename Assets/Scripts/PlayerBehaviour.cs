@@ -2,15 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class PlayerBehaviour : MonoBehaviour {
-  
-  [Header("Player velocity")]
+
+    private enum AnimationState { idle, running, jumping, falling };
+    // Значением по-умолчанию ставим idle (0), как мы и задавали в аниматоре
+    private AnimationState currentAnimationState = AnimationState.idle;
+
+    [Header("Player velocity")]
+
     // Ось Ox
     public int xVelocity = 5;
     // Ось Oy
     public int yVelocity = 8;
 
-  [SerializeField] private LayerMask ground;
+    [SerializeField] private LayerMask ground;
 
     private Rigidbody2D rigidBody;
     private Collider2D coll;
@@ -36,8 +43,8 @@ public class PlayerBehaviour : MonoBehaviour {
         if (moveInput < 0)
         { // Влево
             rigidBody.velocity = new Vector2(-xVelocity, rigidBody.velocity.y);
-            animatorComponent.SetInteger("State", 1); // Бег
-            spriteRenderer.flipX =false;
+            animatorComponent.SetInteger("state", 1); // Бег
+            spriteRenderer.flipX = false;
         }
         else if (moveInput > 0)
         { // Вправо
@@ -54,6 +61,31 @@ public class PlayerBehaviour : MonoBehaviour {
         if (jumpInput > 0 && coll.IsTouchingLayers(ground))
         {
             rigidBody.velocity = new Vector2(rigidBody.velocity.x, yVelocity);
+
+            setAnimationState();
         }
+    }
+
+    // Выбираем текущую анимацию
+    private void setAnimationState()
+    {
+        // Персонаж касается земли 
+        if (coll.IsTouchingLayers(ground))
+        {
+            // При помощи Mathf.Abs получаем модуль значения ускорения (если бежим влево, оно отрицательное)
+            // Если оно больше 0.1 (не стоим на месте), то персонаж бежит
+            if (Mathf.Abs(rigidBody.velocity.x) > 0.1f)
+            {
+                currentAnimationState = AnimationState.running;
+            }
+            else
+            {
+                // Если нет - стоим на месте  
+                currentAnimationState = AnimationState.idle;
+            }
+        }
+
+        // Изменияем значение state в аниматоре
+        animatorComponent.SetInteger("state", (int)currentAnimationState);
     }
 }
