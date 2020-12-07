@@ -5,36 +5,51 @@ using System;
 
 public class CameraBeahaviour : MonoBehaviour
 {
-    [Header("GameObject")]
-    public Transform _gameObject;
-    [Header("Camera position restrictions")]
-    public float minY;
-    public float maxY;
-    public float minX;
-    public float maxX;
+	public float damping = 1.5f;
+	public Vector2 offset = new Vector2(2f, 1f);
+	public bool faceLeft;
+	private Transform player;
+	private int lastX;
 
-    void Update()
-    {
-        UpdateCameraPosition();
-    }
+	void Start()
+	{
+		offset = new Vector2(Mathf.Abs(offset.x), offset.y);
+		FindPlayer(faceLeft);
+	}
 
-    // Изменяем позицию камеры на экране
-  void UpdateCameraPosition()
-    {
-        try
-        {
-            transform.position = new Vector3(
-                // Положение игрового объекта, за которым мы двигаемся
-                Mathf.Clamp(_gameObject.position.x, minX, maxX),
-                Mathf.Clamp(_gameObject.position.y, minY, maxY),
-                // Положение камеры z должно оставать неизменным 
-                transform.position.z // (если камеры куда-то проваливается, заменить на, например, -10)
-              );
-        }
-        catch (Exception error)
-        {
-           
-            Debug.LogError(error);
-        }
-    }
+	public void FindPlayer(bool playerFaceLeft)
+	{
+		player = GameObject.FindGameObjectWithTag("Player").transform;
+		lastX = Mathf.RoundToInt(player.position.x);
+		if (playerFaceLeft)
+		{
+			transform.position = new Vector3(player.position.x - offset.x, player.position.y + offset.y, transform.position.z);
+		}
+		else
+		{
+			transform.position = new Vector3(player.position.x + offset.x, player.position.y + offset.y, transform.position.z);
+		}
+	}
+
+	void Update()
+	{
+		if (player)
+		{
+			int currentX = Mathf.RoundToInt(player.position.x);
+			if (currentX > lastX) faceLeft = false; else if (currentX < lastX) faceLeft = true;
+			lastX = Mathf.RoundToInt(player.position.x);
+
+			Vector3 target;
+			if (faceLeft)
+			{
+				target = new Vector3(player.position.x - offset.x, player.position.y + offset.y, transform.position.z);
+			}
+			else
+			{
+				target = new Vector3(player.position.x + offset.x, player.position.y + offset.y, transform.position.z);
+			}
+			Vector3 currentPosition = Vector3.Lerp(transform.position, target, damping * Time.deltaTime);
+			transform.position = currentPosition;
+		}
+	}
 }

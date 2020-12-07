@@ -1,17 +1,17 @@
-﻿using System.Collections;
+﻿
+
+
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
-public class PlayerBehaviour : MonoBehaviour {
-
-    private enum AnimationState { idle, running, jumping, falling };
-    // Значением по-умолчанию ставим idle (0), как мы и задавали в аниматоре
-    private AnimationState currentAnimationState = AnimationState.idle;
-
+public class PlayerBehaviour : MonoBehaviour
+{
+    /**
+    ** Ускорение игрока
+    **/
     [Header("Player velocity")]
-
     // Ось Ox
     public int xVelocity = 5;
     // Ось Oy
@@ -24,6 +24,9 @@ public class PlayerBehaviour : MonoBehaviour {
     private SpriteRenderer spriteRenderer;
     private Animator animatorComponent;
 
+    private enum AnimationState { idle, running, jumping, falling };
+    private AnimationState currentAnimationState = AnimationState.idle;
+
     private void Start()
     {
         rigidBody = gameObject.GetComponent<Rigidbody2D>();
@@ -31,10 +34,13 @@ public class PlayerBehaviour : MonoBehaviour {
         spriteRenderer = gameObject.GetComponent<SpriteRenderer>();
         animatorComponent = gameObject.GetComponent<Animator>();
     }
-    private void Update() 
+
+    private void Update()
     {
-      updatePlayerPosition();
+        updatePlayerPosition();
     }
+
+    // Обновляем местоположение игрока
     private void updatePlayerPosition()
     {
         float moveInput = Input.GetAxis("Horizontal");
@@ -43,27 +49,24 @@ public class PlayerBehaviour : MonoBehaviour {
         if (moveInput < 0)
         { // Влево
             rigidBody.velocity = new Vector2(-xVelocity, rigidBody.velocity.y);
-            animatorComponent.SetInteger("state", 1); // Бег
             spriteRenderer.flipX = false;
         }
         else if (moveInput > 0)
         { // Вправо
             rigidBody.velocity = new Vector2(xVelocity, rigidBody.velocity.y);
-            animatorComponent.SetInteger("State", 1); // Бег
             spriteRenderer.flipX = true;
         }
         else if (coll.IsTouchingLayers(ground))
         {
             rigidBody.velocity = Vector2.zero; // Отключение инерции в стороны
-            animatorComponent.SetInteger("State", 0); // Стоим
         }
 
         if (jumpInput > 0 && coll.IsTouchingLayers(ground))
         {
             rigidBody.velocity = new Vector2(rigidBody.velocity.x, yVelocity);
-
-            setAnimationState();
         }
+
+        setAnimationState();
     }
 
     // Выбираем текущую анимацию
@@ -83,9 +86,32 @@ public class PlayerBehaviour : MonoBehaviour {
                 // Если нет - стоим на месте  
                 currentAnimationState = AnimationState.idle;
             }
+            // Персонаж не касается земли  
+        }
+        else
+        {
+            // Ставим текущей анимацией прыжок
+            currentAnimationState = AnimationState.jumping;
+
+            if (currentAnimationState == AnimationState.jumping)
+            {
+                // Если усорение уходит в отрицательное значение, значит персонаж падает вниз
+                if (rigidBody.velocity.y < .1f)
+                {
+                    currentAnimationState = AnimationState.falling;
+                }
+            }
+            else if (currentAnimationState == AnimationState.falling)
+            {
+                // Если он коснулся земли, то персонаж переходит в состояние спокойствия
+                if (coll.IsTouchingLayers(ground))
+                {
+                    currentAnimationState = AnimationState.idle;
+                }
+            }
         }
 
         // Изменияем значение state в аниматоре
-        animatorComponent.SetInteger("state", (int)currentAnimationState);
+        animatorComponent.SetInteger("State", (int)currentAnimationState);
     }
 }
