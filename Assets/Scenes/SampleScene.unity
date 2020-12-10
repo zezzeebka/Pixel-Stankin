@@ -95607,7 +95607,7 @@ GameObject:
   - component: {fileID: 967099487}
   - component: {fileID: 967099486}
   m_Layer: 0
-  m_Name: 3809d219d3043790
+  m_Name: Bottle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -105674,7 +105674,7 @@ GameObject:
   - component: {fileID: 1091240795}
   - component: {fileID: 1091240794}
   m_Layer: 0
-  m_Name: utka_copy_2_0 (1)
+  m_Name: utka
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
